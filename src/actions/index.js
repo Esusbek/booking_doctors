@@ -26,28 +26,18 @@ export const actionPromise = (name, promise) => {
     }
 }
 
-export const actionPosts = () => {
-    return actionPromise('posts', gql.request(`query psts{
-          getPosts{
-            id, title, text    
-          }
-        }`))
-}
-
-export const actionCategories = () => {
-    return actionPromise('categories', gql.request(`query {
-        CategoryFind(query:"[{\\"parent\\":null}]") {
-          _id name
-        }
-      }`))
-}
-
-export const actionLogin = (login,password) => 
+export const actionLogin = (login,password, isDoctor) => 
     async dispatch => {
-        console.log(login, password)
-        let result = await dispatch(actionPromise('login', gql.request(`query login($login: String!, $password: String!){
+        console.log(login, password, isDoctor)
+        if(!isDoctor)
+            let result = await dispatch(actionPromise('login', gql.request(`query login($login: String!, $password: String!){
+                  login(username: $login, password: $password)
+                }`, {login, password})))
+        else
+        let result = await dispatch(actionPromise('loginDoctor', gql.request(`query login($login: String!, $password: String!){
               login(username: $login, password: $password)
             }`, {login, password})))
+            
         if (result){
             dispatch(actionAuthLogin(result.login))
         }
