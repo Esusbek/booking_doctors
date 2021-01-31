@@ -29,20 +29,15 @@ export const actionPromise = (name, promise) => {
 export const actionLogin = (login,password, isDoctor) => 
     async dispatch => {
         console.log(login, password, isDoctor)
-        if(!isDoctor)
-            let result = await dispatch(actionPromise('login', gql.request(`query login($login: String!, $password: String!){
-                  login(username: $login, password: $password)
-                }`, {login, password})))
-        else
-        let result = await dispatch(actionPromise('loginDoctor', gql.request(`query login($login: String!, $password: String!){
-              login(username: $login, password: $password)
-            }`, {login, password})))
-            
+        let result = await dispatch(actionPromise('login', gql.request(`query login($login: String!, $password: String!){
+        login(username: $login, password: $password)
+        }`, {login, password})))  
         if (result){
             dispatch(actionAuthLogin(result.login))
         }
     }
 
+export const actionRegister = () => {}
 
 export const actionAuthLogin = (jwt) => ({
     type: "LOGIN",

@@ -3,61 +3,70 @@ const app = express()
 const port = 4000
 
 const { Sequelize, Model, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('mysql://test@localhost/test');
+const sequelize = new Sequelize('testDB', 'sa', '12345', {
+    dialect: 'mysql',
+    port: port
+});
 
-class User extends Model {
-    get appointments(){
-        return this.getAppointments()
-    }
-}
+class User extends Model {}
 User.init({
   username: DataTypes.STRING,
   full_name: DataTypes.STRING,
-  adress: DataTypes.STRING,
   phone: DataTypes.NUMBER,
   email: DataTypes.STRING,
-  position: DataTypes.NUMBER,
+  role: DataTypes.NUMBER,
+  subID: DataTypes.NUMBER,
   password: DataTypes.STRING,
 }, { sequelize, modelName: 'user' });
 
-class Doctor extends Model {
-    get appointments(){
-        return this.getAppointments()
-    }
-}
+class Doctor extends Model {}
 
-Doctor.init({  
-  username: DataTypes.STRING,
-  full_name: DataTypes.STRING,
+Doctor.init({
   cabinet:  DataTypes.NUMBER,
   schedule: DataTypes.STRING,
   speciality: DataTypes.STRING,
-  password: DataTypes.STRING,
 }, { sequelize, modelName: 'doctor' });
 
+class Patient extends Model {}
+
+Patient.init({
+    adress: DataTypes.STRING,
+    gender: DataTypes.STRING,
+    age: DataTypes.NUMBER,
+
+}, {sequelize, modelName: 'patient'});
+
 class Appointment extends Model {
-    get user(){
-        return this.getUser()
+    get patient(){
+        return this.___patient || this.getPatient()
+    }
+    set patient(patient){
+        this.___patient=patient
     }
     get doctor(){
-        return this.getDoctor()
+        return this.___doctor || this.getDoctor()
+    }
+    set doctor(doctor){
+        this.___doctor=doctor
     }
 }
 
 Appointment.init({
     date: DataTypes.DATE,
     status: DataTypes.NUMBER,
-}), {sequelize, modelName: 'appointment'}
+    comment: DataTypes.TEXT,
+}, {sequelize, modelName: 'appointment'});
 
-Appointment.belongsTo(User, {through: 'UserID'})
-Appointment.belongsTo(Doctor, {through: 'DoctorID'})
-User.hasMany(Appointment)
-Doctor.hasMany(Appointment)
+Patient.belongsToMany(Doctor, {through: Appointment})
+Doctor.belongsToMany(Patient, {through: Appointment})
+Patient.belongsTo(User)
+Doctor.belongsTo(User)
+User.hasOne(Patient)
 
 
 ;(async () => {
-  await sequelize.sync();
-})();
+  await sequelize.sync({force: true});
+})(); 
 
 const {graphqlHTTP: express_graphql} = require('express-graphql');
 const { buildSchema } = require('graphql');
@@ -72,98 +81,76 @@ const schema = buildSchema(`
         getAppointment(id: ID!): Appointment
     }
 
-    type Mutation {
-        addUser(user: UserInput): User
-        addPost(post: PostInput): Post
-    }
-
     type User {
         id: ID,
         username: String,
         createdAt: String,
         updatedAt: String,
-        adress: String,
-        email: String,
         full_name: String,
-        phone: Number,
-        position: Number,
-        password: String,
-        appointments: [Appointment]
+        phone: Int,
+        email: String,
+        role: String,
+        subID: Int,
+        password: String
     }
 
     input UserInput {
         username: String!,
         password: String!,
-        email: String,
+        email: String
+    }
+
+    type Doctor {
+        id: ID,
+        createdAt: String,
+        updatedAt: String,
+        cabinet: Int,
+        schedule: String,
+        speciality: String,
+    }
+
+    input DoctorInput{
+        cabinet: Int,
+        schedule: String,
+        speciality: String
+    }
+
+    type Patient {
+        id: ID,
+        createdAt: String,
+        updatedAt: String,
+        adress: String,
+        gender: String,
+        age: Int
+    }
+
+    input PatientInput {
+        adress: String,
+        gender: String,
+        age: Int
     }
 
     type Appointment {
         id: ID,
         createdAt: String,
         updatedAt: String,
-        doctor: Doctor,
-        user: User,
-        status: Number,
-        date: Date,
-
+        date: Int,
+        comment: String,
+        status: Int,
+        patientID: Int,
+        doctorID: Int
     }
 
     input AppointmentInput {
-        doctorId: ID,
-        userId: ID,
-        date: Date,
-    }
-
-    type Doctor {
-        id: ID,
-        username: String,
-        full_name: String,
-        cabinet: Number,
-        schedule: String,
-        speciality: String,
-        password: String,
-    }
-
-    input DoctorInput {
-        username: String!,
-        password: String!,
-
+        date: Int,
+        comment: String,
+        status: Int
     }
 `);
 
 var root = {//объект соответствия названий в type Query и type Mutation с функциями-резолверами из JS-кода
-    async getUsers(){
-        return User.findAll({})
-    },
-    async getUser({id}){
-        return User.findByPk(id)
-    },
-    async addUser({user}){
-        return await User.create(user)
-    },
-
-    async getDoctors(){
-        return Doctor.findAll({})
-    },
-    async getDoctor({id}){
-        return Doctor.findByPk(id)
-    },
-    async addDoctor({doctor}){
-        return await Doctor.create(doctor)
-    },
-
-    async getAppointments(){
-        return Appointment.findAll({})
-    },
-    async getAppointment({id}){
-        return Appointment.findByPk(id)
-    },
-    async addAppointment({app}){
-        return await Appointment.create(app)
-    },
+    
 };
-
-
 
 // Create an express server and a GraphQL endpoint
 app.use('/graphql', express_graphql({

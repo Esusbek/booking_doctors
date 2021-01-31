@@ -6,7 +6,7 @@ import {actionSearch } from './actions';
 import store from './reducers'
 import {Router, Route, Link, Switch, Redirect} from 'react-router-dom';
 
-import {ConnectedLoginForm} from './components'
+import {ConnectedLoginForm, ConnectedRegisterForm} from './components'
 
 const PageMain = () =>
 <>
@@ -16,10 +16,10 @@ const PageMain = () =>
 export default () => {
     return (
         <Provider store={store}>
-            <ConnectedLoginForm />
-            {<Router history={history}>
+            <ConnectedRegisterForm />
+            {/* {<Router history={history}>
                 <Route path="/" component={PageMain} />
-            </Router>}
+            </Router>} */}
         </Provider>
     )
 }
