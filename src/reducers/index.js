@@ -1,7 +1,14 @@
 import {createStore, applyMiddleware, combineReducers} from 'redux';
 import thunk from 'redux-thunk';
+import fetch from 'react'
 import { actionAuthLogin } from '../actions'
 
+
+const originalFetch = fetch;
+fetch = (url, params={headers:{}}) => { 
+    params.headers.Authorization = "Bearer " + localStorage.authToken
+    return originalFetch(url, params)
+}
 
 const reducers = {
     promise(state={}, action){

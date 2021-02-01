@@ -14,21 +14,21 @@ export const RegisterForm = ({onRegister}) => {
     return (
             <div>
                 <label>Username <input type='text' value={username} onChange={e => setUsername(e.target.value)} />
-                </label>
+                </label> <br></br>
                 <label>Full name <input type='text' value={full_name} onChange={e => setFullName(e.target.value)} />
-                </label>
+                </label><br></br>
                 <label>Phone number <input type='number' value={phone} onChange={e => setPhone(e.target.value)} />
-                </label>
+                </label><br></br>
                 <label>Email <input type='email' value={email} onChange={e => setEmail(e.target.value)} />
-                </label>
+                </label><br></br>
                 <label>Adress <input type='text' value={adress} onChange={e => setAdress(e.target.value)} />
-                </label>
+                </label><br></br>
                 <label>Gender <input type='text' value={gender} onChange={e => setGender(e.target.value)} />
-                </label>
+                </label><br></br>
                 <label>Age <input type='number' value={age} onChange={e => setAge(e.target.value)} />
-                </label>
+                </label><br></br>
                 <label>Password <input type='password' value={password} onChange={e => setPassword(e.target.value)} />
-                </label>
+                </label><br></br>
                 <button onClick={() => onRegister(username, password)}>Register</button>
             </div>
         )
