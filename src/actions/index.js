@@ -26,9 +26,9 @@ export const actionPromise = (name, promise) => {
     }
 }
 
-export const actionLogin = (login,password, isDoctor) => 
+export const actionLogin = (login,password) => 
     async dispatch => {
-        console.log(login, password, isDoctor)
+        console.log(login, password)
         let result = await dispatch(actionPromise('login', gql.request(`query login($login: String!, $password: String!){
         login(username: $login, password: $password)
         }`, {login, password})))  
@@ -37,7 +37,15 @@ export const actionLogin = (login,password, isDoctor) =>
         }
     }
 
-export const actionRegister = () => {}
+export const actionRegister = (username, password, full_name, phone, email, adress, gender, age) =>
+    async dispatch => {
+        let patRes = await dispatch(actionPromise('addPatient', gql.request(`mutation addPatient($patient: PatientInput!){
+            addPatient(patient: $patient)            }
+          }`, {patient: {adress, gender, age}})))
+        console.log(patRes)
+        if(patRes){
+        }
+    }
 
 export const actionAuthLogin = (jwt) => ({
     type: "LOGIN",

@@ -3,9 +3,8 @@ const app = express()
 const port = 4000
 
 const { Sequelize, Model, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('testDB', 'sa', '12345', {
-    dialect: 'mysql',
-    port: port
+const sequelize = new Sequelize('test', 'root', 'password', {
+    dialect: 'mysql'
 });
 
 const jwt = require('jsonwebtoken')
@@ -16,17 +15,17 @@ class User extends Model {}
 User.init({
   username: DataTypes.STRING,
   full_name: DataTypes.STRING,
-  phone: DataTypes.NUMBER,
+  phone: DataTypes.INTEGER,
   email: DataTypes.STRING,
-  role: DataTypes.NUMBER,
-  subID: DataTypes.NUMBER,
+  role: DataTypes.INTEGER,
+  subID: DataTypes.INTEGER,
   password: DataTypes.STRING,
 }, { sequelize, modelName: 'user' });
 
 class Doctor extends Model {}
 
 Doctor.init({
-  cabinet:  DataTypes.NUMBER,
+  cabinet:  DataTypes.INTEGER,
   schedule: DataTypes.STRING,
   speciality: DataTypes.STRING,
 }, { sequelize, modelName: 'doctor' });
@@ -36,7 +35,7 @@ class Patient extends Model {}
 Patient.init({
     adress: DataTypes.STRING,
     gender: DataTypes.STRING,
-    age: DataTypes.NUMBER,
+    age: DataTypes.INTEGER,
 
 }, {sequelize, modelName: 'patient'});
 
@@ -57,7 +56,7 @@ class Appointment extends Model {
 
 Appointment.init({
     date: DataTypes.DATE,
-    status: DataTypes.NUMBER,
+    status: DataTypes.INTEGER,
     comment: DataTypes.TEXT,
 }, {sequelize, modelName: 'appointment'});
 
@@ -69,7 +68,7 @@ User.hasOne(Patient)
 
 
 ;(async () => {
-  await sequelize.sync({force: true});
+  await sequelize.sync();
 })(); 
 
 const {graphqlHTTP: express_graphql} = require('express-graphql');
@@ -79,11 +78,20 @@ const schema = buildSchema(`
     type Query {
         getUsers: [User]
         getUser(id: ID!): User
+        getPatients: [Patient]
+        getPatient(id: ID!): Patient 
         getDoctors: [Doctor]
         getDoctor(id: ID!): Doctor
         getAppointments: [Appointment]
         getAppointment(id: ID!): Appointment
         login(username: String!, password: String!): String
+    }
+
+    type Mutation {
+        addUser(user: UserInput): User
+        addPatient(patient: PatientInput): Patient
+        addDoctor(doctor: DoctorInput): Doctor
+        addAppointment(appointment: AppointmentInput): Appointment
     }
 
     type User {
@@ -94,7 +102,7 @@ const schema = buildSchema(`
         full_name: String,
         phone: Int,
         email: String,
-        role: String,
+        role: Int,
         subID: Int,
         password: String
     }
@@ -152,8 +160,6 @@ const schema = buildSchema(`
         date: Int!,
         comment: String!,
         status: Int!,
-        patient: Patient!,
-        doctor: Doctor!
     }
 `);
 
@@ -166,11 +172,31 @@ var root = {//объект соответствия названий в type Que
         if (!user) throw new Error(`can't get user when your anon`)
         return await User.findByPk(id)
     },
-    async addUser({user:{username, password, full_name, phone, email, role = 'patient'}, patient:{adress,gender,age}}){
-        password = await bcrypt.hash(password, 10);/* 
-        patient = await Patient.create({adress,gender,age}) */
-        subId = 123
+    async getPatientss(skip, {user}){
+        if (!user) throw new Error(`can't get patients when your anon`)
+        return await Patient.findAll({})
+    },
+    async getPatient({id}, {user}){
+        if (!user) throw new Error(`can't get patient when your anon`)
+        return await Patient.findByPk(id)
+    },
+    async getDoctors(skip, {user}){
+        if (!user) throw new Error(`can't get doctors when your anon`)
+        return await Doctor.findAll({})
+    },
+    async getDoctors({id}, {user}){
+        if (!user) throw new Error(`can't get user when your anon`)
+        return await Doctor.findByPk(id)
+    },
+    async addUser({user:{username, password, full_name, phone, email, role = 1, subId}}){
+        password = await bcrypt.hash(password, 10);
         return await User.create({username, password, full_name, phone, email, role, subId})
+    },
+    async addPatient({patient:{adress,gender,age}}){
+        return await Patient.create({adress, gender, age})
+    },
+    async addDoctor({doctor:{cabinet, schedule, speciality}}){
+        return await Doctor.create({cabinet, schedule, speciality})
     },
     async login(username, password)
     {
@@ -205,7 +231,7 @@ app.use('/graphql', express_graphql(async (req, res) => {
         schema,
         rootValue: root,
         graphiql: true,
-        context: {user, models}
+        //context: {user, models}
     }
 }));
 

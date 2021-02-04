@@ -29,7 +29,7 @@ export const RegisterForm = ({onRegister}) => {
                 </label><br></br>
                 <label>Password <input type='password' value={password} onChange={e => setPassword(e.target.value)} />
                 </label><br></br>
-                <button onClick={() => onRegister(username, password)}>Register</button>
+                <button onClick={() => onRegister(username, password, full_name, phone, email, adress, gender, age)}>Register</button>
             </div>
         )
 }

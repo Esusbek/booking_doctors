@@ -12,6 +12,7 @@
     "graphql": "^15.4.0",
     "graphql-request": "^3.4.0",
     "jsonwebtoken": "^8.5.1",
+    "mssql": "^6.3.1",
     "mysql2": "^2.2.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -21,6 +22,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "sequelize": "^6.4.0",
+    "tedious": "^6.7.0",
     "web-vitals": "^0.2.4"
   },
   "scripts": {
