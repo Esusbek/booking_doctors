@@ -1,7 +1,12 @@
 import { GraphQLClient } from 'graphql-request';
-
-//const gql = new GraphQLClient('/graphql', {headers: {Authorization: 'Bearer ' + ... }})
+import fetch from 'react'
 const gql = new GraphQLClient('/graphql')
+
+const originalFetch = fetch;
+fetch = (url, params={headers:{}}) => { 
+    params.headers.Authorization = "Bearer " + localStorage.authToken
+    return originalFetch(url, params)
+}
 
 export const actionSearch = text => ({type: 'SEARCH', text})
 export const actionSearchResult = payload => ({type: 'SEARCH_RESULT', payload})
@@ -40,7 +45,9 @@ export const actionLogin = (login,password) =>
 export const actionRegister = (username, password, full_name, phone, email, adress, gender, age) =>
     async dispatch => {
         let patRes = await dispatch(actionPromise('addPatient', gql.request(`mutation addPatient($patient: PatientInput!){
-            addPatient(patient: $patient)            }
+            addPatient(patient: $patient) {
+                id
+            }           }
           }`, {patient: {adress, gender, age}})))
         console.log(patRes)
         if(patRes){
@@ -54,7 +61,6 @@ export const actionAuthLogin = (jwt) => ({
 
 
 export const actionAuthLogout = () => {
-    //npmhistory.push('/')
     return {
         type: "LOGOUT",
     }

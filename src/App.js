@@ -10,18 +10,14 @@ import {ConnectedLoginForm, ConnectedRegisterForm} from './components'
 
 const history = createBrowserHistory();
 
-const PageMain = () =>
-<>
-</>
-
-
 export default () => {
     return (
-        <Provider store={store}>{/* 
-            <ConnectedLoginForm /> */}
+        <Provider store={store}>
+            <ConnectedLoginForm />
             <ConnectedRegisterForm />
             <Router history={history}>
                 <Route path="/" component={PageMain} />
+
             </Router>
         </Provider>
     )

@@ -12,6 +12,7 @@
     "graphql": "^15.4.0",
     "graphql-request": "^3.4.0",
     "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^3.1.2",
     "mssql": "^6.3.1",
     "mysql2": "^2.2.5",
     "react": "^17.0.1",
@@ -48,5 +49,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:4000"
 }

@@ -164,28 +164,28 @@ const schema = buildSchema(`
 `);
 
 var root = {//объект соответствия названий в type Query и type Mutation с функциями-резолверами из JS-кода
-    async getUsers(skip, {user}){
-        if (!user) throw new Error(`can't get userS when your anon`)
+    async getUsers(skip, {user}){/* 
+        if (!user) throw new Error(`can't get userS when your anon`) */
         return await User.findAll({})
     },
-    async getUser({id}, {user}){
-        if (!user) throw new Error(`can't get user when your anon`)
+    async getUser({id}, {user}){/* 
+        if (!user) throw new Error(`can't get user when your anon`) */
         return await User.findByPk(id)
     },
-    async getPatientss(skip, {user}){
-        if (!user) throw new Error(`can't get patients when your anon`)
+    async getPatientss(skip, {user}){/* 
+        if (!user) throw new Error(`can't get patients when your anon`) */
         return await Patient.findAll({})
     },
-    async getPatient({id}, {user}){
-        if (!user) throw new Error(`can't get patient when your anon`)
+    async getPatient({id}, {user}){/* 
+        if (!user) throw new Error(`can't get patient when your anon`) */
         return await Patient.findByPk(id)
     },
-    async getDoctors(skip, {user}){
-        if (!user) throw new Error(`can't get doctors when your anon`)
+    async getDoctors(skip, {user}){/* 
+        if (!user) throw new Error(`can't get doctors when your anon`) */
         return await Doctor.findAll({})
     },
-    async getDoctors({id}, {user}){
-        if (!user) throw new Error(`can't get user when your anon`)
+    async getDoctors({id}, {user}){/* 
+        if (!user) throw new Error(`can't get user when your anon`) */
         return await Doctor.findByPk(id)
     },
     async addUser({user:{username, password, full_name, phone, email, role = 1, subId}}){
@@ -202,7 +202,9 @@ var root = {//объект соответствия названий в type Que
     {
         if(username && password)
         {
+            console.log(username, password)
             let user = await User.findOne({where: {username}});
+            
             if(user && await bcrypt.compare(password, user.password)){
                 const {id} = user
                 const {role} = user
@@ -231,7 +233,7 @@ app.use('/graphql', express_graphql(async (req, res) => {
         schema,
         rootValue: root,
         graphiql: true,
-        //context: {user, models}
+        context: {user}
     }
 }));
 
